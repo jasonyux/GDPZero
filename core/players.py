@@ -43,7 +43,7 @@ class P4GSystemPlanner(DialogPlanner):
 		Save the Children is head-quartered in London, and they work to help fight poverty around the world. Children need help in developing countries and war zones. Small donations like $1 or $2 go a long way to help.
 		The Persuader can choose amongst the following actions during a conversation:
 		{" ".join([f"[{da}]" for da in dialog_acts])}
-		The following is a conversation between a Persuader and	a Persuadee about a charity called Save the Children. The Persuader is trying to persuade the Persuadee to donate to Save the Children.
+		The following is an example conversation between a Persuader and a Persuadee about a charity called Save the Children. The Persuader is trying to persuade the Persuadee to donate to Save the Children.
 		{self.process_exp()}
 		The following is a new conversation between another Persuader and Persuadee.
 		"""
@@ -193,7 +193,7 @@ class P4GChatSystemPlanner(P4GSystemPlanner):
 		Save the Children is head-quartered in London, and they work to help fight poverty around the world. Children need help in developing countries and war zones. Small donations like $1 or $2 go a long way to help.
 		You are Persuader who is trying to persuade the Persuadee to donate to a charity called Save the Children. You can choose amongst the following actions during a conversation:
 		{" ".join([f"[{da}]" for da in dialog_acts])}
-		The following is a conversation between you and	a Persuadee about Save the Children.
+		The following is an example conversation between a Persuader and a Persuadee about Save the Children.
 		""".replace("\t", "").strip()
 		self.new_task_prompt = "The following is a new conversation between Persuader (you) and a Persuadee."
 		self.prompt_examples = self.process_chat_exp(new_task_prompt=self.new_task_prompt)
@@ -424,7 +424,7 @@ class PersuaderModel(DialogModel):
 		self.task_prompt = f"""
 		The following is background information about Save the Children. 
 		Save the Children is head-quartered in London, and they work to help fight poverty around the world. Children need help in developing countries and war zones. Small donations like $1 or $2 go a long way to help.
-		The following is a conversation between a Persuader and a Persuadee about a charity called Save the Children. The Persuader is trying to persuade the Persuadee to donate to Save the Children.
+		The following is an example conversation between a Persuader and a Persuadee about a charity called Save the Children. The Persuader is trying to persuade the Persuadee to donate to Save the Children.
 		{self.process_exp()}
 		The following is a new conversation between another Persuader and Persuadee.
 		"""
@@ -514,7 +514,7 @@ class PersuaderChatModel(PersuaderModel):
 		self.task_prompt = """
 		Save the Children is head-quartered in London, and they work to help fight poverty around the world. Children need help in developing countries and war zones. Small donations like $1 or $2 go a long way to help.
 		You are Persuader who is trying to persuade the Persuadee to donate to a charity called Save the Children.
-		The following is a conversation between Persuader (you) and a Persuadee about Save the Children.
+		The following is an example conversation between a Persuader and a Persuadee about Save the Children.
 		""".replace("\t", "").strip()
 		self.new_task_prompt = "The following is a new conversation between Persuader (you) and another Persuadee.\nThe Persuader greets the persuadee."
 		self.prompt_examples = self.process_chat_exp()
@@ -613,7 +613,7 @@ class PersuadeeModel(DialogModel):
 		The Persuader is trying to persuade the Persuadee to donate to Save the Children.
 		The Persuadee can choose amongst the following actions during a conversation to respond to the Persuader:
 		{" ".join([f"[{da}]" for da in self.dialog_acts])}
-		The following is a conversation between a Persuader and	a Persuadee about a charity called Save the Children. 
+		The following is an example conversation between a Persuader and a Persuadee about a charity called Save the Children.
 		{self.process_exp()}
 		The following is a new conversation between another Persuader and Persuadee.
 		"""
@@ -674,9 +674,9 @@ class PersuadeeChatModel(PersuadeeModel):
 		You are a persuadee. A Persuader is trying to persuade you to donate to a charity called Save the Children.
 		You can choose amongst the following actions during a conversation to respond to the Persuader:
 		{" ".join([f"[{da}]" for da in self.dialog_acts])}
-		The following is a new conversation between a Persuader and a Persuadee (you).
+		The following is an example conversation between a Persuader and some Persuadee.
 		""".replace("\t", "").strip()
-		self.new_task_prompt = "The following is a new conversation between a Persuader and a Persuadee (you)."
+		self.new_task_prompt = "The following is a new conversation between a Persuader and a Persuadee (you). You may or may not want to donate to Save the Children."
 		self.heuristic_args: dict = {
 			"max_hist_num_turns": 2,
 			"example_pred_turn": [[0, 2, 3, 4]]

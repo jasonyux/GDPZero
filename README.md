@@ -18,17 +18,19 @@
 	```
 
 ## Interactive Demo
-You can converse with both PDP-Zero planning and raw-prompting based planning using the `interactive.py` script. The default option is to use PDP-Zero as the planning algorithm:
+You can converse with both PDP-Zero planning and raw-prompting based planning using the `interactive.py` script. **We note that its simulation speed is heavily dependent on OpenAI API's speed.**
+
+The default option is to use PDP-Zero as the planning algorithm:
 ```bash
 ~/PDPZero$ python interactive.py
 using PDPZero as planning algorithm
 You are now the Persuadee. Type 'q' to quit, and 'r' to restart.
 Persuader: Hello. How are you?
 You: Hi, I am good. What about you?
-100%|██████████████████| 10/10 [00:27<00:00, 2.65s/it]
+100%|██████████████████| 10/10 [00:32<00:00, 3.17s/it]
 Persuader: I'm doing well, thank you. I was just wondering if you've heard of the charity called Save the Children?
 You: No I have not. What does this charity do?
-100%|██████████████████| 10/10 [00:32<00:00, 3.19s/it]
+100%|██████████████████| 10/10 [00:37<00:00, 3.69s/it]
 Persuader: Save the Children is an organization that helps children in developing countries by providing relief and promoting children's rights. It's a great charity that makes a positive impact on so many children's lives. They help with things like education, health care, and safety.
 You: 
 ```
@@ -152,6 +154,6 @@ For example to compare `outputs/pdpzero_50sims_3rlz_0.25Q0_20dialogs.pkl`
 	```bash
 	> ~/PDPZero$ python test.py -f outputs/pdpzero_50sims_3rlz_20dialogs.pkl --h2h outputs/chatgpt_raw_prompt.pkl --output eval.pkl --judge gpt-3.5-turbo
 	evaluating: 100%|███████████████| 154/154 [03:29<00:00,  1.36s/it]
-	win rate: 57.79%
-	stats:  {'win': 89, 'draw': 2, 'lose': 63}
+	win rate: 59.09%
+	stats:  {'win': 91, 'draw': 2, 'lose': 61}
 	```

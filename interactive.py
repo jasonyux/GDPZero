@@ -165,12 +165,7 @@ def play_raw_prompt(backbone_model):
 			your_utt = input("You: ")
 			continue
 		# used for da prediction
-		tmp_state = state.copy()
-		tmp_state.add_single(game.USR, 'neutral', your_utt.strip())
-		user_da = user.predict_da(tmp_state)
-
-		logging.info(f"user_da: {user_da}")
-		state.add_single(game.USR, user_da, your_utt.strip())
+		state.add_single(game.USR, 'neutral', your_utt.strip())
 
 		# planning
 		prior, v = planner.predict(state)
@@ -210,7 +205,7 @@ if __name__ == "__main__":
 	parser.add_argument("--algo", type=str, default='pdpzero', choices=['pdpzero', 'raw-prompt'], help="planning algorithm")
 	# used by PDP-Zero
 	parser.add_argument('--llm', type=str, default="gpt-3.5-turbo", choices=["code-davinci-002", "gpt-3.5-turbo", "text-davinci-002", "chatgpt"], help='OpenAI model name')
-	parser.add_argument('--gen_sentences', type=int, default=-1, help='number of sentences to generate from the llm. Longer ones will be truncated by nltk.')
+	parser.add_argument('--gen_sentences', type=int, default=3, help='number of sentences to generate from the llm. Longer ones will be truncated by nltk.')
 	parser.add_argument('--num_mcts_sims', type=int, default=10, help='number of mcts simulations')
 	parser.add_argument('--max_realizations', type=int, default=3, help='number of realizations per mcts state')
 	parser.add_argument('--Q_0', type=float, default=0.25, help='initial Q value for unitialized states. to control exploration')
