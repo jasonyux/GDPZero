@@ -2,6 +2,7 @@ import numpy as np
 import logging
 import pickle
 import argparse
+import numpy as np
 
 from tqdm.auto import tqdm
 from core.gen_models import (
@@ -23,16 +24,16 @@ logger.setLevel(logging.DEBUG)
 
 
 def main(cmd_args):
+	game_ontology = PersuasionGame.get_game_ontology()
+	sys_da = game_ontology['system']['dialog_acts']
+	user_da = game_ontology['user']['dialog_acts']
 	system_name = PersuasionGame.SYS
 	user_name = PersuasionGame.USR
 
 	exp_1 = DialogSession(system_name, user_name).from_history(EXP_DIALOG)
-
-	game_ontology = PersuasionGame.get_game_ontology()
-	sys_da = game_ontology['system']['dialog_acts']
-	user_da = game_ontology['user']['dialog_acts']
 	
-	if cmd_args.llm == 'code-davinci-002':
+
+	if cmd_args.llm in ['code-davinci-002']:
 		backbone_model = OpenAIModel(cmd_args.llm)
 		SysModel = PersuaderModel
 		UsrModel = PersuadeeModel
@@ -80,18 +81,22 @@ def main(cmd_args):
 	)
 	game = PersuasionGame(system, user)
 
+	print(f"System dialog acts: {system.dialog_acts}")
+	print(f"User dialog acts: {user.dialog_acts}")
+
 	with open("data/p4g/300_dialog_turn_based.pkl", "rb") as f:
 		all_dialogs = pickle.load(f)
 
-	num_dialogs = 20
+	num_dialogs = cmd_args.num_dialogs
 	args = dotdict({
 		"cpuct": 1.0,
 		"num_MCTS_sims": cmd_args.num_mcts_sims,
-		"max_realizations": cmd_args.max_realizations,
 		"Q_0": cmd_args.Q_0,
+		"max_realizations": cmd_args.max_realizations,
 	})
 
 	output = []  # for evaluation. [{did, context, ori_resp, new_resp, debug}, ...]
+	# those dialogs has inappropriated content and will throw an error/be filtered with OPENAI models. See raw_prompting.py file for more details
 	bad_dialogs = ['20180808-024552_152_live', '20180723-100140_767_live', '20180825-080802_964_live']  # throws exception due to ChatGPT API filtering
 	num_done = 0
 	pbar = tqdm(total=num_dialogs, desc="evaluating")
@@ -165,13 +170,7 @@ def main(cmd_args):
 			mcts_policy_next_da = system.dialog_acts[np.argmax(mcts_policy)]
 
 			# # fetch the generated utterance from simulation
-			# next_best_state = "__".join([dialog_planner._to_string_rep(state), mcts_policy_next_da])
-			# NLGs = dialog_planner.realizations[next_best_state]
-			# rand_idx: int = np.random.choice(np.arange(0, len(NLGs)), size=1)[0]
-			# mcts_pred_rep = NLGs[rand_idx].history[-2][2]
-			# generate a new utterance to be fair (technically it will be the same as above as system resp are cached)
-			next_best_state = game.get_next_state(state, np.argmax(mcts_policy))
-			mcts_pred_rep = next_best_state.history[-2][2]
+			mcts_pred_rep = dialog_planner.get_best_realization(state, np.argmax(mcts_policy))
 
 			# next ground truth utterance
 			human_resp = " ".join(dialog["dialog"][t+1]["er"]).strip()
@@ -193,6 +192,8 @@ def main(cmd_args):
 					"P": dialog_planner.P,
 					"Vs": dialog_planner.Vs,
 					"realizations": dialog_planner.realizations,
+					"realizations_Vs": dialog_planner.realizations_Vs,
+					"realizations_Ns": dialog_planner.realizations_Ns,
 				},
 			}
 
@@ -207,22 +208,30 @@ def main(cmd_args):
 				"debug": debug_data,
 			}
 			output.append(cmp_data)
+
+			if cmd_args.debug:
+				print(context)
+				print("human resp: ", human_resp)
+				print("human da: ", next_sys_da)
+				print("mcts resp: ", mcts_pred_rep)
+				print("mcts da: ", mcts_policy_next_da)
 		with open(cmd_args.output, "wb") as f:
 			pickle.dump(output, f)
 		num_done += 1
 		pbar.update(1)
-	pbar.close()
 	return
 
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--output', type=str, default="outputs/pdpzero_noRS.pkl", help='output file')
-	parser.add_argument('--llm', type=str, default="code-davinci-002", choices=["code-davinci-002", "gpt-3.5-turbo", "chatgpt"], help='OpenAI model name')
-	parser.add_argument('--gen_sentences', type=int, default=-1, help='max number of sentences to generate')
+	parser.add_argument('--output', type=str, default="outputs/gdpzero.pkl", help='output file')
+	parser.add_argument('--llm', type=str, default="code-davinci-002", choices=["code-davinci-002", "chatgpt", "gpt-3.5-turbo"], help='OpenAI model name')
+	parser.add_argument('--gen_sentences', type=int, default=-1, help='number of sentences to generate from the llm. Longer ones will be truncated by nltk.')
 	parser.add_argument('--num_mcts_sims', type=int, default=20, help='number of mcts simulations')
 	parser.add_argument('--max_realizations', type=int, default=3, help='number of realizations per mcts state')
 	parser.add_argument('--Q_0', type=float, default=0.0, help='initial Q value for unitialized states. to control exploration')
+	parser.add_argument('--num_dialogs', type=int, default=20, help='number of dialogs to test MCTS on')
+	parser.add_argument('--debug', action='store_true', help='debug mode')
 	parser.parse_args()
 	cmd_args = parser.parse_args()
 	print("saving to", cmd_args.output)

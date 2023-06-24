@@ -14,7 +14,7 @@
 	```
 2. Before executing any of the scripts, make sure to **add the project to the PYTHONPATH environment variable**:
 	```bash
-	> ~/PDPZero$ export PYTHONPATH=$(pwd)
+	> ~/GDPZero$ export PYTHONPATH=$(pwd)
 	```
 
 ## Interactive Demo
@@ -22,8 +22,8 @@ You can converse with both PDP-Zero planning and raw-prompting based planning us
 
 The default option is to use PDP-Zero as the planning algorithm:
 ```bash
-~/PDPZero$ python interactive.py
-using PDPZero as planning algorithm
+~/GDPZero$ python interactive.py
+using GDPZero as planning algorithm
 You are now the Persuadee. Type 'q' to quit, and 'r' to restart.
 Persuader: Hello. How are you?
 You: Hi, I am good. What about you?
@@ -36,11 +36,11 @@ You:
 ```
 in the above example, PDP-Zero performs a tree search with `n=10` simulations and `k=3` realizations per state. You can change these parameters using the `--num_mcts_sims` and `--max_realizations` flags, respectively. See `interactive.py -h` and the [Experiments](#experiments) section for more details.
 ```bash
-~/PDPZero$ python interactive.py -h
+~/GDPZero$ python interactive.py -h
 optional arguments:
   -h, --help            show this help message and exit
   --log {20,10,30}      logging mode
-  --algo {pdpzero,raw-prompt}
+  --algo {gdpzero,raw-prompt}
                         planning algorithm
   --llm {code-davinci-002,gpt-3.5-turbo,text-davinci-002,chatgpt}
                         OpenAI model name
@@ -59,7 +59,7 @@ We mainly test PDP-Zero on the [PersuasionForGood](https://arxiv.org/abs/1906.06
 
 *PDP-Zero*:
 ```bash
-> ~/PDPZero$ python runners/pdpzero.py -h
+> ~/GDPZero$ python runners/gdpzero.py -h
 optional arguments:
   -h, --help            show this help message and exit
   --output OUTPUT       output file
@@ -78,12 +78,12 @@ optional arguments:
 ```
 for example, using `gpt-3.5-turbo` as backbone with `n=10` simulations, `k=3` realizations per state, and `Q_0=0.25` for exploration, do:
 ```bash
-> python runners/pdpzero.py --output outputs/pdpzero.pkl --llm gpt-3.5-turbo --num_mcts_sims 10 --max_realizations 3 --Q_0 0.25
+> python runners/gdpzero.py --output outputs/gdpzero.pkl --llm gpt-3.5-turbo --num_mcts_sims 10 --max_realizations 3 --Q_0 0.25
 ```
 
 *Baseline*:
 ```bash
-> ~/PDPZero$ python runners/raw_prompting.py -h
+> ~/GDPZero$ python runners/raw_prompting.py -h
 optional arguments:
   -h, --help            show this help message and exit
   --llm {code-davinci-002,gpt-3.5-turbo,chatgpt}
@@ -100,7 +100,7 @@ for example, using `gpt-3.5-turbo` as backbone, do
 *Ablations*: 
 ```bash
 # without OpenLoop
-~/PDPZero$ python runners/pdpzero_noopenloop.py -h
+~/GDPZero$ python runners/gdpzero_noopenloop.py -h
 optional arguments:
   -h, --help            show this help message and exit
   --output OUTPUT       output file
@@ -113,7 +113,7 @@ optional arguments:
 ```
 ```bash
 # without response selection
-~/PDPZero$ python runners/pdpzero_noRS.py -h
+~/GDPZero$ python runners/gdpzero_noRS.py -h
 optional arguments:
   -h, --help            show this help message and exit
   --output OUTPUT       output file
@@ -127,12 +127,12 @@ optional arguments:
                         number of realizations per mcts state
   --Q_0 Q_0             initial Q value for unitialized states. to control exploration
 ```
-where most of the arguments are the same ones in `pdpzero.py`.
+where most of the arguments are the same ones in `gdpzero.py`.
 
 ## Static Evaluation
 We mainly use `gpt-3.5-turbo` as the judge for static evaluation. To evaluate the planned dialogues from the [Experiments](Experiments) section, use the `test.py` script which prompts ChatGPT to compare the responses between either human demonstrations in P4G or against some generated responses:
 ```bash
-> ~/PDPZero$ python test.py -h
+> ~/GDPZero$ python test.py -h
 optional arguments:
   -h, --help            show this help message and exit
   -f F                  path to the data file for comparing against human in p4g. See P4GEvaluator documentation to see the format of the file.
@@ -142,18 +142,31 @@ optional arguments:
   --output OUTPUT       output file
   --debug               debug mode
 ```
-For example to compare `outputs/pdpzero_50sims_3rlz_0.25Q0_20dialogs.pkl`
+For example to compare `outputs/gdpzero_50sims_3rlz_0.25Q0_20dialogs.pkl`
 - against human demonstration
 	```bash
-	> ~/PDPZero$ python test.py -f outputs/pdpzero_50sims_3rlz_20dialogs.pkl --output eval.pkl --judge gpt-3.5-turbo
+	> ~/GDPZero$ python test.py -f outputs/gdpzero_50sims_3rlz_20dialogs.pkl --output eval.pkl --judge gpt-3.5-turbo
 	evaluating: 100%|███████████████| 154/154 [03:49<00:00,  1.49s/it]
 	win rate: 93.51%
 	stats:  {'win': 144, 'draw': 0, 'lose': 10}
 	```
 - head-to-head comparison against ChatGPT generated responses (e.g. `outputs/chatgpt_raw_prompt.pkl`, see [Experiments](#experiments) section for more details)
 	```bash
-	> ~/PDPZero$ python test.py -f outputs/pdpzero_50sims_3rlz_20dialogs.pkl --h2h outputs/chatgpt_raw_prompt.pkl --output eval.pkl --judge gpt-3.5-turbo
+	> ~/GDPZero$ python test.py -f outputs/gdpzero_50sims_3rlz_20dialogs.pkl --h2h outputs/chatgpt_raw_prompt.pkl --output eval.pkl --judge gpt-3.5-turbo
 	evaluating: 100%|███████████████| 154/154 [03:29<00:00,  1.36s/it]
 	win rate: 59.09%
 	stats:  {'win': 91, 'draw': 2, 'lose': 61}
 	```
+
+## Examples
+
+We provided some example generations in the `output` directory. For instance:
+```bash
+output
+├── chatgpt_raw_prompt.pkl  # chatgpt baseline
+├── gdpzero_10sims_3rlz_0.25Q0_20dialogs.pkl  # gdp-zero with n=10, k=3, Q_0=0.25
+├── gdpzero_10sims_v_chatgpt.pkl  # evaluation result of gdp-zero against chatgpt
+├── gdpzero_20sims_3rlz_0.0Q0_20dialogs.pkl
+├── gdpzero_50sims_3rlz_0.0Q0_20dialogs.pkl
+└── gdpzero_5sims_3rlz_0.0Q0_20dialogs.pkl
+```

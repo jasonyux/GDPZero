@@ -20,7 +20,7 @@ from utils.prompt_examples import EXP_DIALOG
 logger = logging.getLogger(__name__)
 
 
-def play_pdpzero(backbone_model, args):
+def play_gdpzero(backbone_model, args):
 	args = dotdict({
 		"cpuct": 1.0,
 		"num_MCTS_sims": args.num_mcts_sims,
@@ -189,9 +189,9 @@ def main(args):
 	elif args.llm == 'chatgpt':
 		backbone_model = AzureOpenAIChatModel(args.llm, args.gen_sentences)
 
-	if args.algo == 'pdpzero':
-		print("using PDPZero as planning algorithm")
-		play_pdpzero(backbone_model, args)
+	if args.algo == 'gdpzero':
+		print("using GDPZero as planning algorithm")
+		play_gdpzero(backbone_model, args)
 	elif args.algo == 'raw-prompt':
 		print("using raw prompting as planning")
 		play_raw_prompt(backbone_model)
@@ -202,7 +202,7 @@ if __name__ == "__main__":
 	# logging mode
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--log", type=int, default=logging.WARNING, help="logging mode", choices=[logging.INFO, logging.DEBUG, logging.WARNING])
-	parser.add_argument("--algo", type=str, default='pdpzero', choices=['pdpzero', 'raw-prompt'], help="planning algorithm")
+	parser.add_argument("--algo", type=str, default='gdpzero', choices=['gdpzero', 'raw-prompt'], help="planning algorithm")
 	# used by PDP-Zero
 	parser.add_argument('--llm', type=str, default="gpt-3.5-turbo", choices=["code-davinci-002", "gpt-3.5-turbo", "text-davinci-002", "chatgpt"], help='OpenAI model name')
 	parser.add_argument('--gen_sentences', type=int, default=3, help='number of sentences to generate from the llm. Longer ones will be truncated by nltk.')
