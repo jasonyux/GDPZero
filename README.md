@@ -1,4 +1,6 @@
-# PDP-Zero
+# GDP-Zero
+
+This repository contains code for the EMNLP'2023 paper "[Prompt-Based Monte-Carlo Tree Search for Goal-Oriented Dialogue Policy Planning](https://arxiv.org/abs/2305.13660)".
 
 ## Prerequisites
 
